@@ -1,2 +1,3 @@
-# morph
-CLI for converting EVE's static data export
+# Morph
+
+A CLI tool for converting EVE's static data export

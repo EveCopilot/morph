@@ -29,3 +29,5 @@ morph-*.tar
 .iex.exs
 .idea/
 .env
+sde.zip
+sde/

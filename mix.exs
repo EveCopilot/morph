@@ -24,7 +24,11 @@ defmodule Morph.MixProject do
       {:flow, "~> 1.2.4"},
       {:unzip, "~> 0.8.0"},
       {:yaml_elixir, "~> 2.9.0"},
-      {:jason, "~> 1.4"}
+      {:jason, "~> 1.4"},
+      {:ex_aws, "~> 2.4"},
+      {:ex_aws_s3, "~> 2.4"},
+      {:poison, "~> 5.0"},
+      {:hackney, "~> 1.18"},
     ]
   end
 end

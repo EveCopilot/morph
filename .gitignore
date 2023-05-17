@@ -25,9 +25,11 @@ morph-*.tar
 # Temporary files, for example, from tests.
 /tmp/
 
+.DS_Store
 !.tool-versions
 .iex.exs
 .idea/
 .env
 sde.zip
+sde-ndjson.zip
 sde/

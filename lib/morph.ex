@@ -3,17 +3,12 @@ defmodule Morph do
   Documentation for `Morph`.
   """
 
-  @zip "/Users/tleef/Source/github.com/EveCopilot/morph/sde.zip"
-
-  def run() do
-    process(@zip)
-  end
-
   def process(source) do
-    z = unzip(source)
-
-    Unzip.list_entries(z)
-    |> Enum.map(&process_entry(z, &1))
+    unzip(source)
+    |> Unzip.list_entries()
+    |> Flow.from_enumerable()
+    |> Flow.map(&process_entry(source, &1))
+    |> Flow.run()
   end
 
   def unzip(source) do
@@ -26,8 +21,9 @@ defmodule Morph do
     unzip
   end
 
-  def process_entry(z, entry) do
-    Unzip.file_stream!(z, entry.file_name)
+  def process_entry(source, entry) do
+    unzip(source)
+    |> Unzip.file_stream!(entry.file_name)
     |> into_string()
     |> YamlElixir.read_from_string!()
     |> encode!(file_type(entry.file_name))

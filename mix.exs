@@ -5,7 +5,7 @@ defmodule Morph.MixProject do
     [
       app: :morph,
       version: "0.1.0",
-      elixir: "~> 1.14",
+      elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -22,13 +22,8 @@ defmodule Morph.MixProject do
   defp deps do
     [
       {:flow, "~> 1.2.4"},
-      {:unzip, "~> 0.8.0"},
-      {:yaml_elixir, "~> 2.9.0"},
-      {:jason, "~> 1.4"},
-      {:ex_aws, "~> 2.4"},
-      {:ex_aws_s3, "~> 2.4"},
-      {:poison, "~> 5.0"},
-      {:hackney, "~> 1.18"},
+      {:unzip, "~> 0.12.0"},
+      {:yaml_elixir, "~> 2.11.0"}
     ]
   end
 end

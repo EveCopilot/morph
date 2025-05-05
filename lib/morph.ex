@@ -3,21 +3,31 @@ defmodule Morph do
   Documentation for `Morph`.
   """
 
-  def process(source, type) do
-    open(source, type)
-    |> unzip()
-    |> Unzip.list_entries()
+  def process(source) do
+    get_entries(source)
     |> Flow.from_enumerable()
-    |> Flow.map(&process_entry(&1, source, type))
+    |> Flow.map(&process_entry(&1, source))
     |> Flow.run()
   end
 
-  def open(source, :local) do
+  def get_entries(source) do
+    zip_file = open_zipfile(source)
+
+    entries =
+      unzip(zip_file)
+      |> Unzip.list_entries()
+
+    close_zipfile(zip_file)
+
+    entries
+  end
+
+  def open_zipfile(source) do
     Unzip.LocalFile.open(source)
   end
 
-  def open(source, :s3) do
-    Morph.S3File.new(s3_bucket(source), s3_key(source))
+  def close_zipfile(zip_file) do
+    Unzip.LocalFile.close(zip_file)
   end
 
   def unzip(zip_file) do
@@ -27,14 +37,21 @@ defmodule Morph do
     unzip
   end
 
-  def process_entry(entry, source, type) do
-    open(source, type)
-    |> unzip()
+  def process_entry(entry, source) do
+    IO.puts("Processing #{entry.file_name}")
+
+    zip_file = open_zipfile(source)
+
+    unzip(zip_file)
     |> Unzip.file_stream!(entry.file_name)
     |> into_string()
     |> YamlElixir.read_from_string!()
     |> encode!(file_type(entry.file_name))
     |> write_file!("#{file_name(entry.file_name)}.ndjson")
+
+    close_zipfile(zip_file)
+
+    IO.puts("Finished processing #{entry.file_name}")
   end
 
   def into_string(stream) do
@@ -44,17 +61,17 @@ defmodule Morph do
   end
 
   def encode!(data, :set) do
-    Enum.map(data, fn {k, v} -> Map.put(v, :id, k) |> Jason.encode!() end)
+    Enum.map(data, fn {k, v} -> Map.put(v, :id, k) |> JSON.encode!() end)
     |> Enum.join("\n")
   end
 
   def encode!(data, :list) do
-    Enum.map(data, &Jason.encode!/1)
+    Enum.map(data, &JSON.encode!/1)
     |> Enum.join("\n")
   end
 
   def encode!(data, :object) do
-    Jason.encode!(data)
+    JSON.encode!(data)
   end
 
   def write_file!(content, path) do
@@ -63,11 +80,11 @@ defmodule Morph do
     File.write!(path, content)
   end
 
-  def file_type("sde/fsd/universe/" <> _suffix), do: :object
-  def file_type("sde/fsd/tournamentRuleSets.yaml"), do: :list
-  def file_type("sde/fsd/translationLanguages.yaml"), do: :object
-  def file_type("sde/fsd/" <> _suffix), do: :set
-  def file_type("sde/bsd/" <> _suffix), do: :list
+  def file_type("bsd/" <> _suffix), do: :list
+  def file_type("fsd/tournamentRuleSets.yaml"), do: :list
+  def file_type("fsd/translationLanguages.yaml"), do: :object
+  def file_type("fsd/" <> _suffix), do: :set
+  def file_type("universe/" <> _suffix), do: :object
 
   def file_name(prefix) do
     prefix

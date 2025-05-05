@@ -33,3 +33,6 @@ morph-*.tar
 sde.zip
 sde-ndjson.zip
 sde/
+fsd/
+bsd/
+universe/
